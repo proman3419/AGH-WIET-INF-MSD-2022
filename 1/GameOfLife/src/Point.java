@@ -24,9 +24,16 @@ public class Point {
 		currentState = s;
 	}
 
-	public void calculateNewState() {
+	public void calculateNewState(RulesSet rulesSet) {
 		//TODO: insert logic which updates according to currentState and 
 		//number of active neighbors
+		//DONE
+		int activeNeighbors = countActiveNeighbors();
+
+		if (currentState == 0)
+			nextState = RulesSet.getDeadRules(rulesSet).contains(activeNeighbors) ? 1 : 0;
+		else if (currentState == 1)
+			nextState = RulesSet.getAliveRules(rulesSet).contains(activeNeighbors) ? 1 : 0;
 	}
 
 	public void changeState() {
@@ -38,4 +45,15 @@ public class Point {
 	}
 	
 	//TODO: write method counting all active neighbors of THIS point
+	//DONE
+	public int countActiveNeighbors() {
+		int count = 0;
+
+		for (Point neighbor : neighbors) {
+			if (neighbor.getState() == 1)
+				count++;
+		}
+
+		return count;
+	}
 }

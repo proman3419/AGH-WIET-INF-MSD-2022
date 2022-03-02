@@ -4,24 +4,23 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.Timer;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  * Class containing GUI: board + buttons
  */
-public class GUI extends JPanel implements ActionListener, ChangeListener {
+public class GUI extends JPanel implements ActionListener, ChangeListener, ListSelectionListener {
 	private static final long serialVersionUID = 1L;
 	private Timer timer;
 	private Board board;
 	private JButton start;
 	private JButton clear;
 	private JSlider pred;
+	private JList rulesSetList;
 	private JFrame frame;
 	private int iterNum = 0;
 	private final int maxDelay = 500;
@@ -60,9 +59,19 @@ public class GUI extends JPanel implements ActionListener, ChangeListener {
 		pred.addChangeListener(this);
 		pred.setValue(maxDelay - timer.getDelay());
 
+		DefaultListModel<RulesSet> rulesSetListModel = new DefaultListModel<>();
+		for (RulesSet rulesSet : RulesSet.values()) {
+			rulesSetListModel.addElement(rulesSet);
+		}
+		rulesSetList = new JList<>(rulesSetListModel);
+		rulesSetList.setToolTipText("Which rules' set should be used");
+		rulesSetList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		rulesSetList.addListSelectionListener(this);
+
 		buttonPanel.add(start);
 		buttonPanel.add(clear);
 		buttonPanel.add(pred);
+		buttonPanel.add(rulesSetList);
 
 		board = new Board(1024, 768 - buttonPanel.getHeight());
 		container.add(board, BorderLayout.CENTER);
@@ -109,5 +118,10 @@ public class GUI extends JPanel implements ActionListener, ChangeListener {
 	 */
 	public void stateChanged(ChangeEvent e) {
 		timer.setDelay(maxDelay - pred.getValue());
+	}
+
+	@Override
+	public void valueChanged(ListSelectionEvent e) {
+		board.setRulesSet((RulesSet) rulesSetList.getSelectedValue());
 	}
 }

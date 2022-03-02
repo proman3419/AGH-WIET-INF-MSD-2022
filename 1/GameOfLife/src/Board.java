@@ -17,6 +17,7 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 	private static final long serialVersionUID = 1L;
 	private Point[][] points;
 	private int size = 14;
+	private RulesSet rulesSet = RulesSet.DEFAULT;
 
 	public Board(int length, int height) {
 		addMouseListener(this);
@@ -30,7 +31,7 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 	public void iteration() {
 		for (int x = 0; x < points.length; ++x)
 			for (int y = 0; y < points[x].length; ++y)
-				points[x][y].calculateNewState();
+				points[x][y].calculateNewState(this.rulesSet);
 
 		for (int x = 0; x < points.length; ++x)
 			for (int y = 0; y < points[x].length; ++y)
@@ -56,7 +57,16 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 
 		for (int x = 0; x < points.length; ++x) {
 			for (int y = 0; y < points[x].length; ++y) {
-				//TODO: initialize the neighborhood of points[x][y] cell 
+				//TODO: initialize the neighborhood of points[x][y] cell
+				//DONE
+				for (int i = -1; i <= 1; i++) {
+					for (int j = -1; j <= 1; j++) {
+						if ((0 <= x + i && x + i < points.length) &&
+							(0 <= y + j && y + j < points[x].length) &&
+							!(i == 0 && j == 0))
+							points[x][y].addNeighbor(points[x+i][y+j]);
+					}
+				}
 			}
 		}
 	}
@@ -169,4 +179,7 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 	public void mousePressed(MouseEvent e) {
 	}
 
+	public void setRulesSet(RulesSet rulesSet) {
+		this.rulesSet = rulesSet;
+	}
 }
