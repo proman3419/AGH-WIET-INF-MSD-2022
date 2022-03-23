@@ -22,21 +22,36 @@ public class Point {
         }
         return 0;
     }
+
+    public Neighbor getClosestNeighbor(boolean next) {
+        Point nextPoint = this;
+        int distance = 1;
+        if (next) {
+            for (; distance <= Point.getMaxVelocity(type); distance++) {
+                nextPoint = nextPoint.next;
+                if (Point.carTypes.contains(nextPoint.type))
+                    break;
+            }
+        }
+        else {
+            for (; distance <= Point.getMaxVelocity(type); distance++) {
+                nextPoint = nextPoint.prev;
+                if (Point.carTypes.contains(nextPoint.type))
+                    break;
+            }
+        }
+        return new Neighbor(nextPoint, distance);
+    }
+
     public void speedUp() {
         if (velocity < Point.getMaxVelocity(type))
             velocity++;
     }
 
     public void slowDown() {
-        Point nextPoint = this;
-        int distance = 1;
-        for (; distance <= Point.getMaxVelocity(type); distance++) {
-            nextPoint = nextPoint.next;
-            if (Point.carTypes.contains(nextPoint.type))
-                break;
-        }
-        if (distance <= velocity)
-            velocity = distance - 1;
+        Neighbor nextNeighbor = getClosestNeighbor(true);
+        if (nextNeighbor.distance <= velocity)
+            velocity = nextNeighbor.distance - 1;
     }
 
     public void move() {
@@ -55,6 +70,14 @@ public class Point {
         }
     }
 
+    public void overtake() {
+//        Neighbor prevNeighbor = getClosestNeighbor(false);
+//        Neighbor nextNeighbor = getClosestNeighbor(true);
+//        if (velocity < getMaxVelocity(type)) { // 1
+//            if ()
+//        }
+    }
+
     public void clicked() {
         this.type = 0;
     }
@@ -63,4 +86,3 @@ public class Point {
         type = 0;
     }
 }
-
