@@ -11,7 +11,13 @@ public class Point {
     public int velocity;
 
     public Point() {
-        velocity = Point.getMaxVelocity(type);
+        setInitialVelocity();
+    }
+
+    public void becomePoint(Point point) {
+        type = point.type;
+        moved = point.moved;
+        velocity = point.velocity;
     }
 
     public static int getMaxVelocity(int type) {
@@ -23,24 +29,13 @@ public class Point {
         return 0;
     }
 
-    public Neighbor getClosestNeighbor(boolean next) {
-        Point nextPoint = this;
-        int distance = 1;
-        if (next) {
-            for (; distance <= Point.getMaxVelocity(type); distance++) {
-                nextPoint = nextPoint.next;
-                if (Point.carTypes.contains(nextPoint.type))
-                    break;
-            }
-        }
-        else {
-            for (; distance <= Point.getMaxVelocity(type); distance++) {
-                nextPoint = nextPoint.prev;
-                if (Point.carTypes.contains(nextPoint.type))
-                    break;
-            }
-        }
-        return new Neighbor(nextPoint, distance);
+    public boolean isCar() {
+        return Point.carTypes.contains(type);
+    }
+
+    public void setInitialVelocity() {
+        if (this.isCar())
+            velocity = Point.getMaxVelocity(type);
     }
 
     public void speedUp() {
@@ -49,7 +44,7 @@ public class Point {
     }
 
     public void slowDown() {
-        Neighbor nextNeighbor = getClosestNeighbor(true);
+        Neighbor nextNeighbor = Neighbor.getClosestNextNeighbor(this);
         if (nextNeighbor.distance <= velocity)
             velocity = nextNeighbor.distance - 1;
     }
@@ -61,7 +56,7 @@ public class Point {
             nextPoint = nextPoint.next;
         }
 
-        if (Point.carTypes.contains(type) && !moved && nextPoint.type == 0) {
+        if (this.isCar() && !moved && nextPoint.type == 0) {
             nextPoint.type = type;
             nextPoint.moved = true;
             nextPoint.velocity = velocity;
@@ -70,19 +65,44 @@ public class Point {
         }
     }
 
-    public void overtake() {
-//        Neighbor prevNeighbor = getClosestNeighbor(false);
-//        Neighbor nextNeighbor = getClosestNeighbor(true);
-//        if (velocity < getMaxVelocity(type)) { // 1
-//            if ()
-//        }
+    public boolean canFinishOvertake(Point rightPoint) {
+        Neighbor closestPrevNeighborRight = Neighbor.getClosestPrevNeighbor(rightPoint);
+        Neighbor closestNextNeighborRight = Neighbor.getClosestNextNeighbor(rightPoint);
+        Neighbor closestPrevNeighborLeft = Neighbor.getClosestPrevNeighbor(this);
+
+        if (closestPrevNeighborRight.distance >= closestPrevNeighborRight.point.velocity) { // 1
+            if (closestPrevNeighborLeft.distance <= Point.getMaxVelocity(closestPrevNeighborLeft.point.type)) { // 2
+                if (closestNextNeighborRight.distance >= velocity) { // 3
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean canOvertake(Point leftPoint) {
+        Neighbor closestPrevNeighborLeft = Neighbor.getClosestPrevNeighbor(leftPoint);
+        Neighbor closestNextNeighborLeft = Neighbor.getClosestNextNeighbor(leftPoint);
+        Neighbor closestPrevNeighborRight = Neighbor.getClosestPrevNeighbor(this);
+
+        if (velocity < getMaxVelocity(type)) { // 1
+            if (closestPrevNeighborRight.distance >= Point.getMaxVelocity(closestPrevNeighborRight.point.type)) { // 2
+                if (closestPrevNeighborLeft.distance >= Point.getMaxVelocity(closestPrevNeighborLeft.point.type)) { // 3
+                    if (closestNextNeighborLeft.distance >= velocity) { // 4
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public void clicked() {
-        this.type = 0;
+        type = 0;
     }
 
     public void clear() {
-        type = 0;
+        if (type != 5)
+            type = 0;
     }
 }

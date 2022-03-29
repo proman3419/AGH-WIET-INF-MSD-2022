@@ -10,6 +10,7 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
     private Point[][] points;
     private int size = 25;
     public int editType = 0;
+    private int grassWidth = 2;
 
     public Board(int length, int height) {
         addMouseListener(this);
@@ -21,7 +22,6 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 
     private void initialize(int length, int height) {
         points = new Point[length][height];
-        int grassWidth = 2;
 
         for (int x = 0; x < points.length; ++x) {
             for (int y = 0; y < points[x].length; ++y) {
@@ -39,6 +39,13 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
         }
     }
 
+    private void swapPoints(Point p1, Point p2) {
+        Point tmp = new Point();
+        tmp.becomePoint(p2);
+        p2.becomePoint(p1);
+        p1.becomePoint(tmp);
+    }
+
     public void iteration() {
         for (int x = 0; x < points.length; ++x) {
             for (int y = 0; y < points[x].length; ++y) {
@@ -48,9 +55,30 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 
         for (int x = 0; x < points.length; ++x) {
             for (int y = 0; y < points[x].length; ++y) {
-                points[x][y].speedUp();
-                points[x][y].slowDown();
-                points[x][y].move();
+                boolean overtake = false;
+                if (y == grassWidth) { // samochod jest na lewym pasie
+                    if (!points[x][y+1].isCar()) { // nie ma samochodu obok
+                        if (points[x][y].canFinishOvertake(points[x][y + 1])) { // moze wrocic na prawy
+                            swapPoints(points[x][y], points[x][y + 1]); // wraca na prawy
+                            points[x][y + 1].moved = true;
+                            overtake = true;
+                        }
+                    }
+                }
+                else if (y == grassWidth + 1) { // samochod jest na prawym pasie
+                    if (!points[x][y-1].isCar()) { // nie ma samochodu obok
+                        if (points[x][y].canOvertake(points[x][y - 1])) { // moze zjechac na lewy
+                            swapPoints(points[x][y], points[x][y - 1]); // zjezdza na lewy
+                            points[x][y - 1].moved = true;
+                            overtake = true;
+                        }
+                    }
+                }
+                if (!overtake) {
+                    points[x][y].slowDown();
+                    points[x][y].speedUp();
+                    points[x][y].move();
+                }
             }
         }
         this.repaint();
@@ -63,7 +91,6 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
             }
         this.repaint();
     }
-
 
     protected void paintComponent(Graphics g) {
         if (isOpaque()) {
@@ -118,8 +145,12 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
             if(editType==0){
                 points[x][y].clicked();
             }
+            else if (points[x][y].type == 5) {
+                return;
+            }
             else {
-                points[x][y].type= editType;
+                points[x][y].type = editType;
+                points[x][y].setInitialVelocity();
             }
             this.repaint();
         }
@@ -138,8 +169,12 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
             if(editType==0){
                 points[x][y].clicked();
             }
+            else if (points[x][y].type == 5) {
+                return;
+            }
             else {
-                points[x][y].type= editType;
+                points[x][y].type = editType;
+                points[x][y].setInitialVelocity();
             }
             this.repaint();
         }
