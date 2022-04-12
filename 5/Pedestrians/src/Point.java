@@ -9,6 +9,7 @@ public class Point {
 	public int type;
 	public int staticField;
 	public boolean isPedestrian;
+	public boolean blocked = false;
 
 	public Point() {
 		type=0;
@@ -18,7 +19,6 @@ public class Point {
 
 	public void clear() {
 		staticField = 100000;
-
 	}
 
 	public boolean calcStaticField() {
@@ -27,14 +27,39 @@ public class Point {
 			if (neighbor.staticField < min)
 				min = neighbor.staticField;
 
-		int prevStaticField = staticField;
-		if (staticField > min + 1)
+		if (staticField > min + 1) {
 			staticField = min + 1;
+			return true;
+		}
 
-		return !(staticField == prevStaticField);
+		return false;
 	}
 
-	public void move(){
+	public void move() {
+		if (isPedestrian && !blocked) {
+			int minStaticField = 100001;
+			Point minStaticFieldPoint = null;
+			{
+				for (Point neighbor : neighbors) {
+					if (neighbor.type == 0 || neighbor.type == 2) {
+						if (neighbor.staticField < minStaticField) {
+							minStaticField = neighbor.staticField;
+							minStaticFieldPoint = neighbor;
+						}
+					}
+				}
+			}
+
+			if (minStaticFieldPoint != null && !minStaticFieldPoint.blocked) {
+				type = 0;
+				isPedestrian = false;
+				minStaticFieldPoint.blocked = true;
+				if (minStaticFieldPoint.type == 0) {
+					minStaticFieldPoint.type = 3;
+					minStaticFieldPoint.isPedestrian = true;
+				}
+			}
+		}
 	}
 
 	public void addNeighbor(Point nei) {

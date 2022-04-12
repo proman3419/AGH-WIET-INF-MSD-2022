@@ -26,6 +26,10 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 	public void iteration() {
 		for (int x = 1; x < points.length - 1; ++x)
 			for (int y = 1; y < points[x].length - 1; ++y)
+				points[x][y].blocked = false;
+
+		for (int x = 1; x < points.length - 1; ++x)
+			for (int y = 1; y < points[x].length - 1; ++y)
 				points[x][y].move();
 		this.repaint();
 	}
@@ -61,8 +65,8 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 
 		for (int x = 1; x < points.length-1; ++x) {
 			for (int y = 1; y < points[x].length-1; ++y) {
-				initializeMooreNeighborhood(x, y);
-//				initializeVonNeumannNeighborhood(x, y);
+					initializeMooreNeighborhood(x, y);
+//					initializeVonNeumannNeighborhood(x, y);
 			}
 		}
 	}
@@ -195,5 +199,4 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 
 	public void mousePressed(MouseEvent e) {
 	}
-
 }

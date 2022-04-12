@@ -4,14 +4,10 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.Timer;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
 
 public class GUI extends JPanel implements ActionListener, ChangeListener {
 	private static final long serialVersionUID = 1L;
@@ -21,6 +17,7 @@ public class GUI extends JPanel implements ActionListener, ChangeListener {
 	private JButton clear;
 	private JComboBox<Integer> drawType;
 	private JSlider pred;
+	private JList neighborhoodTypeList;
 	private JFrame frame;
 	private int iterNum = 0;
 	private final int maxDelay = 500;
@@ -70,7 +67,7 @@ public class GUI extends JPanel implements ActionListener, ChangeListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(timer)) {
 			iterNum++;
-			frame.setTitle("Sound simulation (" + Integer.toString(iterNum) + " iteration)");
+			frame.setTitle("Pedestrians simulation (" + Integer.toString(iterNum) + " iteration)");
 			board.iteration();
 		} else {
 			String command = e.getActionCommand();
